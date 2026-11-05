@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary-dark: #07162C;
+  --color-primary: #0F294A;
+  --color-primary-light: #1E3E62;
+  --color-secondary: #E65C00;
+  --color-secondary-light: #FF7A1A;
+  --color-accent: #FFB300;
+  --color-accent-light: #FFCA28;
+  --color-whatsapp: #25D366;
+  --color-whatsapp-dark: #128C7E;
+  --color-cream: #FAF8F5;
+  --color-charcoal: #1F2937;
+  --color-light-bg: #F4F6F9;
+  
+  --font-display: 'Poppins', sans-serif;
+  --font-sans: 'Inter', sans-serif;
+}
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #1F2937;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Custom Webkit scrollbar for premium touch */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF8F5;
+}
+::-webkit-scrollbar-thumb {
+  background: #0F294A;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #E65C00;
+}

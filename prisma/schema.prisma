@@ -1,0 +1,249 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      String    @default("Staff") // Admin, Staff
+  lastLogin DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Customer {
+  id               String    @id @default(cuid())
+  name             String
+  phone            String    @unique
+  whatsApp         String?
+  email            String?
+  notes            String?
+  marketingConsent Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  bookings         Booking[]
+}
+
+model Booking {
+  id                String                 @id @default(cuid())
+  bookingRef        String                 @unique
+  customerId        String
+  customer          Customer               @relation(fields: [customerId], references: [id])
+  pickupLocation    String
+  destination       String
+  pickupDate        String
+  pickupTime        String
+  returnDate        String?
+  tripType          String // Local, One-way, Round-trip, Airport, Package
+  passengerCount    Int
+  luggageDetails    String?
+  vehicleId         String?
+  vehicle           Vehicle?               @relation(fields: [vehicleId], references: [id])
+  specialRequest    String?
+  estimatedFare     Float
+  finalFare         Float?
+  paymentStatus     String                 @default("Pending") // Pending, Paid, Refunded
+  bookingStatus     String                 @default("New Enquiry") // New Enquiry, Contacted, Quote Sent, Waiting for Confirmation, Confirmed, Driver Assigned, Trip Started, Trip Completed, Cancelled
+  assignedVehicleId String?
+  assignedDriverId  String?
+  assignedDriver    Driver?                @relation(fields: [assignedDriverId], references: [id])
+  internalNotes     String?
+  bookingSource     String                 @default("Website") // Website, WhatsApp, Phone Call, Google Business Profile, Justdial, Walk-in, Referral, Admin Added
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  statusHistory     BookingStatusHistory[]
+}
+
+model BookingStatusHistory {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  status    String
+  updatedBy String
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model Vehicle {
+  id                String    @id @default(cuid())
+  name              String
+  category          String // Sedan, SUV, Premium SUV, Tempo Traveller
+  imageJson         String // JSON array of image paths
+  passengerCapacity Int
+  luggageCapacity   Int
+  hasAc             Boolean   @default(true)
+  fuelType          String // Diesel, Petrol, CNG
+  localFare         Float // e.g. local starting price
+  outstationPerKm   Float // per km rate
+  driverAllowance   Float // outstation driver allowance
+  minKmRule         Int       @default(250) // minimum kms charged per day for outstation
+  isActive          Boolean   @default(true)
+  isAvailable       Boolean   @default(true)
+  regNumber         String? // Private internal registration
+  insuranceExpiry   String? // Private internal
+  serviceDate       String? // Private internal
+  permitExpiry      String? // Private internal
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  bookings          Booking[]
+}
+
+model Driver {
+  id                 String    @id @default(cuid())
+  name               String
+  phone              String
+  imagePath          String?
+  licenceNumber      String?
+  licenceExpiry      String?
+  assignedVehicleId  String?
+  availabilityStatus String    @default("Available") // Available, Busy, On Leave
+  internalNotes      String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  bookings           Booking[]
+}
+
+model TourPackage {
+  id                String           @id @default(cuid())
+  name              String
+  duration          String
+  featuredImage     String
+  galleryJson       String // JSON array of image paths
+  startingPrice     Float
+  placesCoveredJson String // JSON array of strings
+  inclusionsJson    String // JSON array of strings
+  exclusionsJson    String // JSON array of strings
+  itineraryJson     String // JSON array of itinerary items
+  isFeatured        Boolean          @default(false)
+  isPublished       Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  enquiries         PackageEnquiry[]
+}
+
+model PackageEnquiry {
+  id         String      @id @default(cuid())
+  name       String
+  phone      String
+  email      String?
+  packageId  String
+  package    TourPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  passengers Int
+  travelDate String
+  notes      String?
+  status     String      @default("New") // New, Contacted, Converted, Lost
+  createdAt  DateTime    @default(now())
+}
+
+model Review {
+  id           String   @id @default(cuid())
+  customerName String
+  rating       Int
+  reviewText   String
+  travelType   String
+  dateText     String
+  isFeatured   Boolean  @default(false)
+  isApproved   Boolean  @default(false)
+  sourceLink   String?
+  createdAt    DateTime @default(now())
+}
+
+model FAQ {
+  id          String  @id @default(cuid())
+  question    String
+  answer      String
+  category    String // General, Booking, Outstation, Tour Package
+  isPublished Boolean @default(true)
+}
+
+model BlogPost {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  content         String
+  featuredImage   String
+  category        String // Ujjain Travel Guide, etc.
+  seoTitle        String?
+  seoDescription  String?
+  status          String   @default("Published") // Draft, Published
+  author          String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Lead {
+  id           String         @id @default(cuid())
+  title        String
+  stage        String         @default("New") // New, Contacted, Interested, Quote Sent, Follow-up, Converted, Lost
+  customerName String
+  phone        String
+  notes        String?
+  priority     String         @default("Medium") // Low, Medium, High
+  followUpDate String?
+  assignedTo   String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  followUps    LeadFollowUp[]
+}
+
+model LeadFollowUp {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  note      String
+  createdBy String
+  createdAt DateTime @default(now())
+}
+
+model PromoBanner {
+  id          String   @id @default(cuid())
+  heading     String
+  description String
+  imagePath   String?
+  ctaText     String?
+  ctaLink     String?
+  startDate   String?
+  endDate     String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model WebsiteSettings {
+  id                     String  @id @default("settings")
+  logoUrl                String?
+  businessName           String  @default("Ananya Express")
+  phone                  String  @default("+91 94250 82701")
+  whatsApp               String  @default("+91 94250 82701")
+  email                  String  @default("booking@ananyaexpress.com")
+  addressFreeganj        String  @default("Near BJP Office, Freeganj, Ujjain, Madhya Pradesh")
+  addressNanakheda       String  @default("A/1, New Abhishek Nagar, Nanakheda, Ujjain, Madhya Pradesh")
+  businessHours          String  @default("Open 24 Hours, 7 Days a Week")
+  heroHeading            String  @default("Reliable Taxi & Tour Services in Ujjain")
+  heroDescription        String  @default("Book clean cars, professional drivers and fixed-price travel services for local sightseeing, Mahakal Darshan, airport transfers and outstation trips.")
+  aboutText              String  @default("Ananya Express provides dependable taxi, car rental and tour services across Ujjain and nearby destinations. With professional drivers, clean vehicles, fixed pricing and 24-hour support, the company helps individuals, families and groups travel safely and comfortably.")
+  experienceYears        Int     @default(10)
+  tripsCompleted         Int     @default(15000)
+  fleetSize              Int     @default(25)
+  socialFacebook         String?
+  socialInstagram        String?
+  socialTwitter          String?
+  googleMapsFreeganj     String?
+  googleMapsNanakheda    String?
+  justdialLink           String?
+  advancePaymentPercent  Int     @default(20)
+  upiId                  String  @default("ananyaexpress@upi")
+  paymentGatewayActive   Boolean @default(false)
+  privacyPolicy          String?
+  termsConditions        String?
+  bookingPolicy          String?
+  cancellationPolicy     String?
+  refundPolicy           String?
+  driverDisclaimer       String?
+}
