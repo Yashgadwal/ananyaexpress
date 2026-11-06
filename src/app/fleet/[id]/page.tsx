@@ -1,5 +1,5 @@
-import prisma from '@/lib/db';
 import { getWebsiteSettings } from '@/lib/settings';
+import { getVehicleById, getVehicles } from '@/lib/data';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import StickyBottomBar from '@/components/StickyBottomBar';
@@ -18,19 +18,14 @@ export default async function VehicleDetailsPage({ params }: PageProps) {
   const { id } = await params;
   const settings = await getWebsiteSettings();
   
-  const vehicle = await prisma.vehicle.findUnique({
-    where: { id },
-  });
+  const vehicle = await getVehicleById(id);
 
   if (!vehicle) {
     notFound();
   }
 
   // Fetch all vehicles for the booking form drop-down
-  const allVehicles = await prisma.vehicle.findMany({
-    where: { isActive: true },
-    select: { id: true, name: true, category: true },
-  });
+  const allVehicles = await getVehicles();
 
   const waMsg = `Hello Ananya Express, I want to book the ${vehicle.name} (${vehicle.category}). Please share availability and rates.`;
   const whatsappUrl = `https://wa.me/${settings.whatsApp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(waMsg)}`;

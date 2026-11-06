@@ -1,5 +1,5 @@
-import prisma from '@/lib/db';
 import { getWebsiteSettings } from '@/lib/settings';
+import { getBlogPostBySlug } from '@/lib/data';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import StickyBottomBar from '@/components/StickyBottomBar';
@@ -17,9 +17,7 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const settings = await getWebsiteSettings();
   
-  const post = await prisma.blogPost.findUnique({
-    where: { slug },
-  });
+  const post = await getBlogPostBySlug(slug);
 
   if (!post) {
     notFound();

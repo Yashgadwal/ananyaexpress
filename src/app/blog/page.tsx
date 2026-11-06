@@ -1,5 +1,5 @@
-import prisma from '@/lib/db';
 import { getWebsiteSettings } from '@/lib/settings';
+import { getBlogPosts } from '@/lib/data';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import StickyBottomBar from '@/components/StickyBottomBar';
@@ -10,10 +10,7 @@ export const revalidate = 0;
 
 export default async function BlogListingPage() {
   const settings = await getWebsiteSettings();
-  const posts = await prisma.blogPost.findMany({
-    where: { status: 'Published' },
-    orderBy: { createdAt: 'desc' },
-  });
+  const posts = await getBlogPosts();
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">

@@ -1,5 +1,5 @@
-import prisma from '@/lib/db';
 import { getWebsiteSettings } from '@/lib/settings';
+import { getTourPackages } from '@/lib/data';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import StickyBottomBar from '@/components/StickyBottomBar';
@@ -10,9 +10,7 @@ export const revalidate = 0;
 
 export default async function PackagesPage() {
   const settings = await getWebsiteSettings();
-  const packages = await prisma.tourPackage.findMany({
-    where: { isPublished: true },
-  });
+  const packages = await getTourPackages();
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">

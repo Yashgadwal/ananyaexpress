@@ -1,5 +1,12 @@
-import prisma from '@/lib/db';
 import { getWebsiteSettings } from '@/lib/settings';
+import { 
+  getVehicles, 
+  getTourPackages, 
+  getFAQs, 
+  getReviews, 
+  getBlogPosts, 
+  getPromoBanners 
+} from '@/lib/data';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import StickyBottomBar from '@/components/StickyBottomBar';
@@ -31,33 +38,15 @@ export const revalidate = 0; // Disable caching to ensure real-time admin update
 export default async function HomePage() {
   const settings = await getWebsiteSettings();
   
-  // Fetch active items
-  const vehicles = await prisma.vehicle.findMany({
-    where: { isActive: true }
-  });
-
-  const packages = await prisma.tourPackage.findMany({
-    where: { isPublished: true },
-    orderBy: { isFeatured: 'desc' }
-  });
-
-  const faqs = await prisma.fAQ.findMany({
-    where: { isPublished: true }
-  });
-
-  const reviews = await prisma.review.findMany({
-    where: { isApproved: true }
-  });
-
-  const blogs = await prisma.blogPost.findMany({
-    where: { status: 'Published' },
-    orderBy: { createdAt: 'desc' },
-    take: 3
-  });
-
-  const promoBanners = await prisma.promoBanner.findMany({
-    where: { isActive: true }
-  });
+  // Fetch active items with resilient fallbacks
+  const [vehicles, packages, faqs, reviews, blogs, promoBanners] = await Promise.all([
+    getVehicles(),
+    getTourPackages(),
+    getFAQs(),
+    getReviews(),
+    getBlogPosts(),
+    getPromoBanners(),
+  ]);
 
   const whatsappUrl = `https://wa.me/${settings.whatsApp.replace(/[^0-9]/g, '')}?text=Hello%20Ananya%20Express,%20I%20want%20to%20enquire%20about%20a%20taxi%20booking.`;
 

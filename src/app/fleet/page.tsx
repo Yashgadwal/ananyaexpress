@@ -1,5 +1,5 @@
-import prisma from '@/lib/db';
 import { getWebsiteSettings } from '@/lib/settings';
+import { getVehicles } from '@/lib/data';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import StickyBottomBar from '@/components/StickyBottomBar';
@@ -9,9 +9,7 @@ export const revalidate = 0;
 
 export default async function FleetPage() {
   const settings = await getWebsiteSettings();
-  const vehicles = await prisma.vehicle.findMany({
-    where: { isActive: true },
-  });
+  const vehicles = await getVehicles();
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">

@@ -1,5 +1,5 @@
-import prisma from '@/lib/db';
 import { getWebsiteSettings } from '@/lib/settings';
+import { getTourPackageById } from '@/lib/data';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import StickyBottomBar from '@/components/StickyBottomBar';
@@ -24,9 +24,7 @@ export default async function PackageDetailPage({ params }: PageProps) {
   const { id } = await params;
   const settings = await getWebsiteSettings();
   
-  const pkg = await prisma.tourPackage.findUnique({
-    where: { id },
-  });
+  const pkg = await getTourPackageById(id);
 
   if (!pkg) {
     notFound();
